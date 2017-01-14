@@ -7,7 +7,7 @@ var ground;
 var player;
 var obstacle;
 
-//This sets the score to start at -1.
+//This sets the score to start at 0.
 var score = 0;
 
 
@@ -24,6 +24,8 @@ function preload(){
   game.load.image('ground', 'assets/wallHorizontal.png');
   game.load.image('obstacle', 'assets/wallVertical.png');
   game.load.image('coin', 'assets/coin.png');
+  game.load.image('enemy', 'assets/enemy.png');
+  game.load.image('special', 'assets/special.png');
 
   //If you'd like to load music files, the format would look like  game.load.audio('[name of music]', ['[location for music file]']);
 }
@@ -67,8 +69,17 @@ function create() {
   //This adds the scoreboard on the top left side of the screen.
   	scoreText = game.add.text(16, 16, 'score: 0', { fontSize: '32px', fill: '#000' });
 
-    coin = game.add.sprite(500, 500, 'coin');
+  //Coin
+    coin = game.add.sprite(500, 520, 'coin');
     game.physics.arcade.enable(coin);
+
+  //Enemy
+    enemy = game.add.sprite(650, 545, 'enemy');
+    game.physics.arcade.enable(enemy);
+
+  //Special
+    special = game.add.sprite(630, 800, 'special');
+    game.physics.arcade.enable(special);
 };
 
 function update(){
@@ -76,6 +87,8 @@ function update(){
 	game.physics.arcade.collide(player, ground);
 	game.physics.arcade.collide(player, obstacle);
   game.physics.arcade.overlap(player, coin, colllectCoin, null, this);
+  game.physics.arcade.overlap(player, enemy, enemyIsBad, null, this);
+  game.physics.arcade.overlap(player, special, specialFun, null, this);
 
   //This allows the player to jump only if you press the space key and the player is touching the something at the bottom.
   	if (spaceKey.isDown && player.body.touching.down) {
@@ -88,8 +101,19 @@ function update(){
   		obstacle.x -= 0.05;
   	}
 
+  //Coin
     if (coin.x > 1) {
       coin.x -= 0.05;
+    }
+
+  //Enemy
+    if (enemy.x > 1) {
+      enemy.x -= 0.05;
+    }
+
+  //Special
+    if (special.x > 1) {
+      special.x -= 0.07;
     }
 
   //This will create a new wall if the old wall goes off the screen
@@ -101,24 +125,63 @@ function update(){
   		game.physics.arcade.enable(obstacle);
   		obstacle.body.immovable = true;
   	}
-
+  //Coin
     function colllectCoin(){
       console.log("eawiuefwuwaefiuwuiw")
       coin.kill();
-      score++;
-      scoreText.text = 'score: ' + score;
       makeCoin();
     }
 
     function makeCoin(){
       console.log('coin')
         coin.kill();
-        coin = game.add.sprite(800, 500, 'coin');
+        score+=1;
+        scoreText.text = 'score: ' + score;
+        coin = game.add.sprite(800, 520, 'coin');
         game.physics.arcade.enable(coin);  
     }
 
     if (coin.x < 0) {
      makeCoin();
+    }
+
+  //Enemy
+    function enemyIsBad(){
+      console.log("eawiuefwuwaefiuwuiw")
+      enemy.kill();
+      score--;
+      scoreText.text = 'score: ' + score;
+      makeEnemy();
+    }
+
+    function makeEnemy(){
+      console.log('enemy')
+        enemy.kill();
+        enemy = game.add.sprite(800, 545, 'enemy');
+        game.physics.arcade.enable(enemy);  
+    }
+
+    if (enemy.x < 0) {
+     makeEnemy();
+    }
+
+  //Special
+    function iIsSpecial(){
+      special.kill();
+      specialFun();
+    }
+
+    function specialFun(){
+      console.log('special')
+        special.kill();
+        score+=5;
+        scoreText.text = 'score: ' + score;
+        special = game.add.sprite(800, 545, 'special');
+        game.physics.arcade.enable(special);  
+    }
+
+    if (special.x < 0) {
+     specialFun();
     }
 
   //This will update the score if the player has not been pushed off the screen, and the wall has gone off the left side.
@@ -131,6 +194,9 @@ function update(){
   		scoreText = game.add.text(350,200, 'YOU LOSE!!!!!!😝', {fill: '#e24848'});
   		obstacle.kill();
   		player.kill();
+      coin.kill();
+      enemy.kill();
+      special.kill();
   	}
 };
 
